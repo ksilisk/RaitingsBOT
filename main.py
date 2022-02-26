@@ -124,7 +124,24 @@ def send_photo(user_id, photo):
 
 
 def whom_to_rate(user_id, text): #кого показывать для оценки
-
+    if text in ['Всех', 'Парней', 'Девушек']:
+        if text == 'Всех':
+            sql.set_whom_to(user_id, 'all')
+        elif text == 'Парней':
+            sql.set_whom_to(user_id, 'man')
+        elif text == 'Девушек':
+            sql.set_whom_to(user_id, 'woman')
+        markup = types.InlineKeyboardMarkup()
+        markup.row_width = 2
+        button_1 = types.InlineKeyboardButton('1', '')
+        # дописать
+    else:
+        markup = types.ReplyKeyboardMarkup()
+        button_all = types.KeyboardButton('Всех')
+        button_man = types.KeyboardButton('Парней')
+        button_woman = types.KeyboardButton('Девушек')
+        markup.row(button_all, button_man, button_woman)
+        bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup)
 
 
 #    markup = types.ReplyKeyboardMarkup()
