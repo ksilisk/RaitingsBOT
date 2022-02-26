@@ -93,7 +93,7 @@ def job_choice(user_id, text):
         bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup)
 
 
-def who_to_rate(user_id, text):
+def who_to_rate(user_id, text): # кому показывать фото для оценки
     if text in ['Всем', 'Парням', 'Девушкам']:
         if text == 'Всем':
             sql.set_who_to(user_id, 'all')
@@ -123,8 +123,8 @@ def send_photo(user_id, photo):
     sql.set_position(user_id, 'wait_rait_photo')
 
 
-def whom_to_rate(user_id, text):
-    print()
+def whom_to_rate(user_id, text): #кого показывать для оценки
+
 
 
 #    markup = types.ReplyKeyboardMarkup()
