@@ -90,6 +90,10 @@ def add_new_photo(user_id, file_id):
     con.commit()
 
 
+def get_whom_to(user_id):
+    return cur.execute("SELECT whom_to FROM users WHERE Id = ?", (user_id,)).fetchone()[0]
+
+
 def close():
     con.close()
 
