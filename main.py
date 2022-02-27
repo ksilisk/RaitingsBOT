@@ -154,19 +154,18 @@ def whom_to_rate(user_id, text):  # кого показывать для оце�
 
 def send_photo(user_id):
     markup = types.InlineKeyboardMarkup()
-    button1 = types.InlineKeyboardButton('1', callback_data='1')
-    button2 = types.InlineKeyboardButton('2', callback_data='2')
-    button3 = types.InlineKeyboardButton('3', callback_data='3')
-    button4 = types.InlineKeyboardButton('4', callback_data='4')
-    button5 = types.InlineKeyboardButton('5', callback_data='5')
-    button6 = types.InlineKeyboardButton('6', callback_data='6')
-    button7 = types.InlineKeyboardButton('7', callback_data='7')
-    button8 = types.InlineKeyboardButton('8', callback_data='8')
-    button9 = types.InlineKeyboardButton('9', callback_data='9')
-    button10 = types.InlineKeyboardButton('10', callback_data='10')
-    buttonСomplaint = types.InlineKeyboardButton('Жалоба', callback_data='complaint')
-    buttonMy = types.InlineKeyboardButton('Мои фото', callback_data='my_photo')
-    markup.row(button1,button2,button3,button4,button5,button6,button7,button8,button9,button10,buttonСomplaint,buttonMy)
+    markup.row(types.InlineKeyboardButton('1', callback_data='1'),
+               types.InlineKeyboardButton('2', callback_data='2'),
+               types.InlineKeyboardButton('3', callback_data='3'),
+               types.InlineKeyboardButton('4', callback_data='4'),
+               types.InlineKeyboardButton('5', callback_data='5'),
+               types.InlineKeyboardButton('6', callback_data='6'),
+               types.InlineKeyboardButton('7', callback_data='7'),
+               types.InlineKeyboardButton('8', callback_data='8'),
+               types.InlineKeyboardButton('9', callback_data='9'),
+               types.InlineKeyboardButton('10', callback_data='10'),
+               types.InlineKeyboardButton('Жалоба', callback_data='complaint'),
+               types.InlineKeyboardButton('Мои фото', callback_data='my_photo'))
     file_id = sql.search_photo(user_id)
     if file_id == 0:
         bot.send_message(user_id, '')
