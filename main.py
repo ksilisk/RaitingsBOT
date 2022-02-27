@@ -48,7 +48,8 @@ def message_hand(message):
                 markup.row(button_man, button_woman, button_all)
                 bot.send_message(message.chat.id, 'Кого ты хочешь оценивать?', reply_markup=markup)
                 sql.set_position(message.chat.id, 'whom_to')
-                # дописать логику
+            else:
+                send_photo(message.chat.id)
         else:
             bot.send_message(message.chat.id, 'Пожалуйста, введите корректное значение!')
     else:
@@ -140,9 +141,7 @@ def whom_to_rate(user_id, text):  # кого показывать для оце�
             sql.set_whom_to(user_id, 'man')
         elif text == 'Девушек':
             sql.set_whom_to(user_id, 'woman')
-        markup = types.InlineKeyboardMarkup()
-        markup.row_width = 2
-        button_1 = types.InlineKeyboardButton('1', '')
+        send_photo(user_id)
         # дописать
     else:
         markup = types.ReplyKeyboardMarkup()
@@ -151,6 +150,28 @@ def whom_to_rate(user_id, text):  # кого показывать для оце�
         button_woman = types.KeyboardButton('Девушек')
         markup.row(button_all, button_man, button_woman)
         bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup)
+
+
+def send_photo(user_id):
+    markup = types.InlineKeyboardMarkup()
+    button1 = types.InlineKeyboardButton('1', callback_data='1')
+    button2 = types.InlineKeyboardButton('2', callback_data='2')
+    button3 = types.InlineKeyboardButton('3', callback_data='3')
+    button4 = types.InlineKeyboardButton('4', callback_data='4')
+    button5 = types.InlineKeyboardButton('5', callback_data='5')
+    button6 = types.InlineKeyboardButton('6', callback_data='6')
+    button7 = types.InlineKeyboardButton('7', callback_data='7')
+    button8 = types.InlineKeyboardButton('8', callback_data='8')
+    button9 = types.InlineKeyboardButton('9', callback_data='9')
+    button10 = types.InlineKeyboardButton('10', callback_data='10')
+    buttonСomplaint = types.InlineKeyboardButton('Жалоба', callback_data='complaint')
+    buttonMy = types.InlineKeyboardButton('Мои фото', callback_data='my_photo')
+    markup.row(button1,button2,button3,button4,button5,button6,button7,button8,button9,button10,buttonСomplaint,buttonMy)
+    file_id = sql.search_photo(user_id)
+    if file_id == 0:
+        bot.send_message(user_id, '')
+    bot.send_photo(user_id, file_id, reply_markup=markup)
+
 
 
 bot.infinity_polling()
