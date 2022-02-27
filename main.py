@@ -15,9 +15,8 @@ bot = telebot.TeleBot(token)
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.ReplyKeyboardMarkup()
-    button_man = types.KeyboardButton('Парень')
-    button_woman = types.KeyboardButton('Девушка')
-    markup.row(button_man, button_woman)
+    markup.row(types.KeyboardButton('Парень'),
+               types.KeyboardButton('Девушка'))
     if sql.check_user(message.chat.id):
         sql.set_position(message.chat.id, 'пол')
     else:
@@ -42,10 +41,9 @@ def message_hand(message):
         elif message.text == 'Оценить кого-то!':
             if sql.get_whom_to(message.chat.id) == 'None':
                 markup = types.ReplyKeyboardMarkup()
-                button_all = types.KeyboardButton('Всех')
-                button_man = types.KeyboardButton('Парней')
-                button_woman = types.KeyboardButton('Девушек')
-                markup.row(button_man, button_woman, button_all)
+                markup.row(types.KeyboardButton('Всех'),
+                           types.KeyboardButton('Парней'),
+                           types.KeyboardButton('Девушек'))
                 bot.send_message(message.chat.id, 'Кого ты хочешь оценивать?', reply_markup=markup)
                 sql.set_position(message.chat.id, 'whom_to')
             else:
@@ -64,14 +62,12 @@ def photos_hand(message):
 
 def man_woman(user_id, text):
     markup = types.ReplyKeyboardMarkup()
-    button_man = types.KeyboardButton('Парень')
-    button_woman = types.KeyboardButton('Девушка')
-    markup.row(button_man, button_woman)
+    markup.row(types.KeyboardButton('Парень'),
+               types.KeyboardButton('Девушка'))
     if text in ['Парень', 'Девушка']:
         markup = types.ReplyKeyboardMarkup()
-        button1 = types.KeyboardButton('Хочу пока оценивать других!')
-        button2 = types.KeyboardButton('Хочу, чтобы оценили меня!')
-        markup.row(button1, button2)
+        markup.row(types.KeyboardButton('Хочу пока оценивать других!'),
+                   types.KeyboardButton('Хочу, чтобы оценили меня!'))
         sql.set_gender(user_id, text)
         bot.send_message(user_id, 'Отлично!\nТеперь ответьте как хотите продолжить?', reply_markup=markup)
         sql.set_position(user_id, 'job_choice')
@@ -82,23 +78,20 @@ def man_woman(user_id, text):
 def job_choice(user_id, text):
     markup = types.ReplyKeyboardMarkup()
     if text == 'Хочу, чтобы оценили меня!':
-        button_all = types.KeyboardButton('Всем')
-        button_man = types.KeyboardButton('Парням')
-        button_woman = types.KeyboardButton('Девушкам')
-        markup.row(button_man, button_woman, button_all)
+        markup.row(types.KeyboardButton('Всем'),
+                   types.KeyboardButton('Парням'),
+                   types.KeyboardButton('Девушкам'))
         bot.send_message(user_id, 'Кому показывать твои фотографии?', reply_markup=markup)
         sql.set_position(user_id, 'who_to')
     elif text == 'Хочу пока оценивать других!':
-        button_all = types.KeyboardButton('Всех')
-        button_man = types.KeyboardButton('Парней')
-        button_woman = types.KeyboardButton('Девушек')
-        markup.row(button_man, button_woman, button_all)
+        markup.row(types.KeyboardButton('Всех'),
+                   types.KeyboardButton('Парней'),
+                   types.KeyboardButton('Девушек'))
         bot.send_message(user_id, 'Кого ты хочешь оценивать?', reply_markup=markup)
         sql.set_position(user_id, 'whom_to')
     else:
-        button1 = types.KeyboardButton('Хочу пока оценивать других!')
-        button2 = types.KeyboardButton('Хочу, чтобы оценили меня!')
-        markup.row(button1, button2)
+        markup.row(types.KeyboardButton('Хочу пока оценивать других!'),
+                   types.KeyboardButton('Хочу, чтобы оценили меня!'))
         bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup)
 
 
@@ -114,18 +107,16 @@ def who_to_rate(user_id, text):  # кому показывать фото для
         sql.set_position(user_id, 'add_photo')
     else:
         markup = types.ReplyKeyboardMarkup()
-        button_all = types.KeyboardButton('Всем')
-        button_man = types.KeyboardButton('Парнем')
-        button_woman = types.KeyboardButton('Девушкам')
-        markup.row(button_all, button_man, button_woman)
+        markup.row(types.KeyboardButton('Всем'),
+                   types.KeyboardButton('Парнем'),
+                   types.KeyboardButton('Девушкам'))
         bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup)
 
 
 def add_photo(user_id, photo):
     markup = types.ReplyKeyboardMarkup()
-    button_new_photo = types.KeyboardButton('Добавить еще фото!')
-    button_rait_anyone = types.KeyboardButton('Оценить кого-то!')
-    markup.row(button_new_photo, button_rait_anyone)
+    markup.row(types.KeyboardButton('Добавить еще фото!'),
+               types.KeyboardButton('Оценить кого-то!'))
     bot.send_message(user_id,
                      'Отлично!\nФотография добавлена!\nКак только кто-то ее оценит, я отправлю Вам уведомление!',
                      reply_markup=markup)
@@ -145,10 +136,9 @@ def whom_to_rate(user_id, text):  # кого показывать для оце�
         # дописать
     else:
         markup = types.ReplyKeyboardMarkup()
-        button_all = types.KeyboardButton('Всех')
-        button_man = types.KeyboardButton('Парней')
-        button_woman = types.KeyboardButton('Девушек')
-        markup.row(button_all, button_man, button_woman)
+        markup.row(types.KeyboardButton('Всех'),
+                   types.KeyboardButton('Парней'),
+                   types.KeyboardButton('Девушек'))
         bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup)
 
 
