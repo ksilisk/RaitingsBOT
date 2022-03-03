@@ -26,7 +26,7 @@ def start(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def test_callback(call):  # <- passes a CallbackQuery type object to your function
-    print(call) #дописать обработку оценок к фотографиям
+    print(call)  # дописать обработку оценок к фотографиям
 
 
 @bot.message_handler(content_types=['text'])
@@ -39,6 +39,13 @@ def message_hand(message):
         who_to_rate(message.chat.id, message.text)
     elif sql.get_position(message.chat.id) == 'whom_to':
         whom_to_rate(message.chat.id, message.text)
+    elif sql.get_position(message.chat.id) == 'wait_new_photo':
+        if message.text == 'Оценить кого-то':
+            send_photo(message.chat.id)
+        elif message.text == 'Мои фотографии':
+            pass  # дописать функцию, отображающую все фотографии пользователя и среднее оценокк к ним
+        else:
+            bot.send_message(message.chat.id, 'Пожалуйста, введите корректное значение!')
     elif sql.get_position(message.chat.id) == 'wait_rait_photo':
         if message.text == 'Добавить еще фото!':
             sql.set_position(message.chat.id, 'add_photo')
@@ -166,9 +173,11 @@ def send_photo(user_id):
         file_id = str(sql.search_photo(user_id)[0])
         bot.send_photo(user_id, file_id, reply_markup=markup)
     else:
-        bot.send_message(user_id, 'На данный момент новых фотографий нет! Попробуйте позже!')
-        sql.set_position(user_id, 'wait_new_photo') #дописать обработку этого события
-
+        markup = types.ReplyKeyboardMarkup()
+        markup.row(types.KeyboardButton('Оценить кого-то'),
+                   types.KeyboardButton('Мои фотографии'))
+        bot.send_message(user_id, 'На данный момент новых фотографий нет! Попробуйте позже!', reply_markup=markup)
+        sql.set_position(user_id, 'wait_new_photo')
 
 
 bot.infinity_polling()
