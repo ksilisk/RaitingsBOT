@@ -63,16 +63,13 @@ def aaaa(user_id):
     return owners
 #
 def search_photo(user_id):
-    photos = cur.execute("SELECT file_id, user_id FROM photos WHERE photos.id NOT IN ("
+    photos = cur.execute("SELECT file_id, id, user_id FROM photos WHERE photos.id NOT IN ("
                           "SELECT photo_id FROM raitings WHERE user_id = ?) ", (user_id, )).fetchall()
-    print(photos)
     for photo in photos:
-        print(type(photo))
         whom_to = cur.execute("SELECT whom_to FROM users WHERE Id = ?", (user_id, )).fetchone()[0]
-        who_to = cur.execute("SELECT who_to FROM users WHERE Id = ?", (photo[1], )).fetchone()[0]
-        print(who_to,whom_to)
-        if whom_to == who_to and photo[1] != user_id:
-            return photo[0]
+        who_to = cur.execute("SELECT who_to FROM users WHERE Id = ?", (photo[2], )).fetchone()[0]
+        if whom_to == who_to and photo[2] != user_id:
+            return photo[0:2]
     return 0
 
     #допили побратски потом обязательно

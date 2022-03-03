@@ -24,6 +24,11 @@ def start(message):
     bot.send_message(message.chat.id, "Вы парень или девушка?", reply_markup=markup)
 
 
+@bot.callback_query_handler(func=lambda call: True)
+def test_callback(call):  # <- passes a CallbackQuery type object to your function
+    print(call) #дописать обработку оценок к фотографиям
+
+
 @bot.message_handler(content_types=['text'])
 def message_hand(message):
     if sql.get_position(message.chat.id) == 'пол':
@@ -143,23 +148,26 @@ def whom_to_rate(user_id, text):  # кого показывать для оце�
 
 
 def send_photo(user_id):
-    markup = types.InlineKeyboardMarkup()
-    markup.row(types.InlineKeyboardButton('1', callback_data='1'),
-               types.InlineKeyboardButton('2', callback_data='2'),
-               types.InlineKeyboardButton('3', callback_data='3'),
-               types.InlineKeyboardButton('4', callback_data='4'),
-               types.InlineKeyboardButton('5', callback_data='5'),
-               types.InlineKeyboardButton('6', callback_data='6'),
-               types.InlineKeyboardButton('7', callback_data='7'),
-               types.InlineKeyboardButton('8', callback_data='8'),
-               types.InlineKeyboardButton('9', callback_data='9'),
-               types.InlineKeyboardButton('10', callback_data='10'),
-               types.InlineKeyboardButton('Жалоба', callback_data='complaint'),
-               types.InlineKeyboardButton('Мои фото', callback_data='my_photo'))
-    file_id = sql.search_photo(user_id)
-    if file_id == 0:
-        bot.send_message(user_id, '')
-    bot.send_photo(user_id, file_id, reply_markup=markup)
+    if sql.search_photo(user_id) != 0:
+        photo_id = str(sql.search_photo(user_id)[1])
+        markup = types.InlineKeyboardMarkup()
+        markup.row(types.InlineKeyboardButton('1', callback_data=('1_' + photo_id)),
+                   types.InlineKeyboardButton('2', callback_data=('2_' + photo_id)),
+                   types.InlineKeyboardButton('3', callback_data=('3_' + photo_id)),
+                   types.InlineKeyboardButton('4', callback_data=('4_' + photo_id)),
+                   types.InlineKeyboardButton('5', callback_data=('5_' + photo_id)),
+                   types.InlineKeyboardButton('6', callback_data=('6_' + photo_id)),
+                   types.InlineKeyboardButton('7', callback_data=('7_' + photo_id)),
+                   types.InlineKeyboardButton('8', callback_data=('8_' + photo_id)),
+                   types.InlineKeyboardButton('9', callback_data=('9_' + photo_id)),
+                   types.InlineKeyboardButton('10', callback_data=('10_' + photo_id)),
+                   types.InlineKeyboardButton('Жалоба', callback_data=('complaint_' + photo_id)),
+                   types.InlineKeyboardButton('Мои фото', callback_data='my_photo'))
+        file_id = str(sql.search_photo(user_id)[0])
+        bot.send_photo(user_id, file_id, reply_markup=markup)
+    else:
+        bot.send_message(user_id, 'На данный момент новых фотографий нет! Попробуйте позже!')
+        sql.set_position(user_id, 'wait_new_photo') #дописать обработку этого события
 
 
 
