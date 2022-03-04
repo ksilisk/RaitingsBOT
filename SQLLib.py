@@ -58,10 +58,6 @@ def is_photo_raited(user_id):
     return cur.execute("SELECT EXISTS (SELECT Id FROM users WHERE Id = ?)", (user_id, )).fetchone()[0]
 
 
-def aaaa(user_id):
-    owners = cur.execute("SELECT Id, who_to FROM users WHERE who_to = (SELECT whom_to FROM users WHERE users.Id = ?)", (user_id,)).fetchall()
-    return owners
-#
 def search_photo(user_id):
     photos = cur.execute("SELECT file_id, id, user_id FROM photos WHERE photos.id NOT IN ("
                           "SELECT photo_id FROM raitings WHERE user_id = ?) ", (user_id, )).fetchall()
@@ -72,15 +68,6 @@ def search_photo(user_id):
             return photo[0:2]
     return 0
 
-    #допили побратски потом обязательно
-def join_the_table(user_id):
-    print(cur.execute("SELECT"))
-
-#поиск фото для оценивания
-#SELECT file_id FROM photos LEFT JOIN raitings ON raitings.user_id != ? AND raitings.photo_id = photos.id, (user_id, )
-#но это очень хуй знает, ток если дебажить на проде ахахахахах
-#def rated_photo()
-
 
 def add_new_photo(user_id, file_id):
     cur.execute("INSERT INTO photos (file_id, user_id) VALUES (?,?)", (file_id, user_id))
@@ -89,6 +76,11 @@ def add_new_photo(user_id, file_id):
 
 def get_whom_to(user_id):
     return cur.execute("SELECT whom_to FROM users WHERE Id = ?", (user_id,)).fetchone()[0]
+
+
+def add_rait(photo_id, user_id, raiting):
+    cur.execute("INSERT INTO raitings (photo_id, user_id, raiting) VALUES (?,?,?)", (photo_id, user_id, raiting))
+    con.commit()
 
 
 def close():

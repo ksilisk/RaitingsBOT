@@ -26,7 +26,7 @@ def start(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def test_callback(call):  # <- passes a CallbackQuery type object to your function
-    print(call)  # дописать обработку оценок к фотографиям
+    pass  # дописать обработку оценок к фотографиям
 
 
 @bot.message_handler(content_types=['text'])
