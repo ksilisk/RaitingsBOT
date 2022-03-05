@@ -83,6 +83,9 @@ def add_rait(photo_id, user_id, raiting):
     con.commit()
 
 
+def my_photos_raitings(user_id):
+    pass
+
 def close():
     con.close()
 

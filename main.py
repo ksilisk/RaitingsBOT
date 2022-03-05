@@ -29,13 +29,14 @@ def callback_query(call):  # <- дописать обработку оценок
     if '_' in call.data:
         data = call.data.split('_')
         if data[0] == 'complaint':
-            print(data.call.from_user[0])
+            sql.add_complaint(call.from_user.id)
         elif data[0] == 'my':
             pass # обработать функцию для кнопки my_photo
         else:
-            pass # проверить как получить айди пользователя и передать все необходимые данные в sql.add_rait()
+            sql.add_rait(data[1], call.from_user.id, data[0])
+            send_photo(call.from_user.id)
     else:
-        pass # получить айди и отправить сообщение об ошибке (или придумать как обрабатывать невалидные callback-запросы)
+        bot.send_message(call.from_user.id, 'Ошибка! Попробуйте снова!')
 
 
 @bot.message_handler(content_types=['text'])
@@ -187,6 +188,10 @@ def send_photo(user_id):
                    types.KeyboardButton('Мои фотографии'))
         bot.send_message(user_id, 'На данный момент новых фотографий нет! Попробуйте позже!', reply_markup=markup)
         sql.set_position(user_id, 'wait_new_photo')
+
+
+def my_photos():
+    pass
 
 
 bot.infinity_polling()
