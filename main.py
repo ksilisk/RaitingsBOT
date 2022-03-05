@@ -25,8 +25,17 @@ def start(message):
 
 
 @bot.callback_query_handler(func=lambda call: True)
-def test_callback(call):  # <- passes a CallbackQuery type object to your function
-    pass  # дописать обработку оценок к фотографиям
+def callback_query(call):  # <- дописать обработку оценок к фотографиям
+    if '_' in call.data:
+        data = call.data.split('_')
+        if data[0] == 'complaint':
+            print(data.call.from_user[0])
+        elif data[0] == 'my':
+            pass # обработать функцию для кнопки my_photo
+        else:
+            pass # проверить как получить айди пользователя и передать все необходимые данные в sql.add_rait()
+    else:
+        pass # получить айди и отправить сообщение об ошибке (или придумать как обрабатывать невалидные callback-запросы)
 
 
 @bot.message_handler(content_types=['text'])

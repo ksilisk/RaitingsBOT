@@ -10,7 +10,7 @@ def check_ban(user_id):
     return False
 
 
-def add_complaints(user_id):
+def add_complaint(user_id):
     cur.execute("UPDATE users SET complaints = complaints + 1 WHERE Id = ?", (user_id,))
     con.commit()
 
