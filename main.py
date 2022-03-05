@@ -8,7 +8,7 @@ bot = telebot.TeleBot(token)
 
 
 # print(sql.aaaa(11))
-# print(sql.is_photo_raited(12))
+
 # print(sql.search_photo(12))#sql.add_new_photo(12, '5576567567856')
 
 
@@ -31,7 +31,7 @@ def callback_query(call):  # <- дописать обработку оценок
         if data[0] == 'complaint':
             sql.add_complaint(call.from_user.id)
         elif data[0] == 'my':
-            pass # обработать функцию для кнопки my_photo
+            my_photos(call.from_user.id) # дописать функцию
         else:
             sql.add_rait(data[1], call.from_user.id, data[0])
             send_photo(call.from_user.id)
@@ -53,7 +53,7 @@ def message_hand(message):
         if message.text == 'Оценить кого-то':
             send_photo(message.chat.id)
         elif message.text == 'Мои фотографии':
-            pass  # дописать функцию, отображающую все фотографии пользователя и среднее оценокк к ним
+            my_photos(message.chat.id)  # дописать функцию, отображающую все фотографии пользователя и среднее оценокк к ним
         else:
             bot.send_message(message.chat.id, 'Пожалуйста, введите корректное значение!')
     elif sql.get_position(message.chat.id) == 'wait_rait_photo':
@@ -155,7 +155,6 @@ def whom_to_rate(user_id, text):  # кого показывать для оце�
         elif text == 'Девушек':
             sql.set_whom_to(user_id, 'woman')
         send_photo(user_id)
-        # дописать
     else:
         markup = types.ReplyKeyboardMarkup()
         markup.row(types.KeyboardButton('Всех'),
@@ -190,8 +189,14 @@ def send_photo(user_id):
         sql.set_position(user_id, 'wait_new_photo')
 
 
-def my_photos():
-    pass
+def my_photos(user_id): # доделать получение всех фотографий и средних оценок к ним
+    data = sql.my_photos_raitings(user_id)
+    photos_rait = {}
+    for i in range(len(data)):
+        if photos_rait.get(data[i][0]) == None:
+            photos_rait[data[i][0]] = 0
+        photos_rait[data[i][0]] += int(data[i][2]) # реализовать среднее арифметическое оценок к фото
+    print(photos_rait)
 
-
+my_photos('525875863')
 bot.infinity_polling()

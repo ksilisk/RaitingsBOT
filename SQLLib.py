@@ -54,10 +54,6 @@ def get_gender(user_id):
     return cur.execute("SELECT gender FROM users WHERE Id = ?", (user_id,)).fetchone()[0]
 
 
-def is_photo_raited(user_id):
-    return cur.execute("SELECT EXISTS (SELECT Id FROM users WHERE Id = ?)", (user_id, )).fetchone()[0]
-
-
 def search_photo(user_id):
     photos = cur.execute("SELECT file_id, id, user_id FROM photos WHERE photos.id NOT IN ("
                           "SELECT photo_id FROM raitings WHERE user_id = ?) ", (user_id, )).fetchall()
@@ -84,7 +80,8 @@ def add_rait(photo_id, user_id, raiting):
 
 
 def my_photos_raitings(user_id):
-    pass
+    return cur.execute("SELECT id, file_id, raiting FROM photos "
+                       "JOIN raitings ON photo_id = id WHERE photos.user_id = ?", (user_id, )).fetchall()
 
 def close():
     con.close()
