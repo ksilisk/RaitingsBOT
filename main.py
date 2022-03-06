@@ -6,7 +6,8 @@ import SQLLib as sql
 token = "973541236:AAFLvoGUV1btTIYuoJ8i4NxXv2K4gGrQiBY"
 bot = telebot.TeleBot(token)
 
-
+#read = 525875863
+#print(sql.my_photos_raitings(read))
 # print(sql.aaaa(11))
 
 # print(sql.search_photo(12))#sql.add_new_photo(12, '5576567567856')
@@ -25,13 +26,13 @@ def start(message):
 
 
 @bot.callback_query_handler(func=lambda call: True)
-def callback_query(call):  # <- дописать обработку оценок к фотографиям
+def callback_query(call):
     if '_' in call.data:
         data = call.data.split('_')
         if data[0] == 'complaint':
             sql.add_complaint(call.from_user.id)
         elif data[0] == 'my':
-            my_photos(call.from_user.id) # дописать функцию
+            my_photos(call.from_user.id)
         else:
             sql.add_rait(data[1], call.from_user.id, data[0])
             send_photo(call.from_user.id)
@@ -47,31 +48,19 @@ def message_hand(message):
         job_choice(message.chat.id, message.text)
     elif sql.get_position(message.chat.id) == 'who_to':
         who_to_rate(message.chat.id, message.text)
+    elif sql.get_position(message.chat.id) == 'rait_or_add_photo':
+        rait_or_add_photo(message.chat.id, message.text)
     elif sql.get_position(message.chat.id) == 'whom_to':
         whom_to_rate(message.chat.id, message.text)
     elif sql.get_position(message.chat.id) == 'wait_new_photo':
         if message.text == 'Оценить кого-то':
             send_photo(message.chat.id)
         elif message.text == 'Мои фотографии':
-            my_photos(message.chat.id)  # дописать функцию, отображающую все фотографии пользователя и среднее оценокк к ним
+            my_photos(message.chat.id)
         else:
             bot.send_message(message.chat.id, 'Пожалуйста, введите корректное значение!')
     elif sql.get_position(message.chat.id) == 'wait_rait_photo':
-        if message.text == 'Добавить еще фото!':
-            sql.set_position(message.chat.id, 'add_photo')
-            bot.send_message(message.chat.id, 'Пришлите фото!')
-        elif message.text == 'Оценить кого-то!':
-            if sql.get_whom_to(message.chat.id) == 'None':
-                markup = types.ReplyKeyboardMarkup()
-                markup.row(types.KeyboardButton('Всех'),
-                           types.KeyboardButton('Парней'),
-                           types.KeyboardButton('Девушек'))
-                bot.send_message(message.chat.id, 'Кого ты хочешь оценивать?', reply_markup=markup)
-                sql.set_position(message.chat.id, 'whom_to')
-            else:
-                send_photo(message.chat.id)
-        else:
-            bot.send_message(message.chat.id, 'Пожалуйста, введите корректное значение!')
+        wait_rait_photo(message.chat.id, message.text)
     else:
         bot.send_message(message.chat.id, 'Пожалуйста, введите корректное значение!')
 
@@ -112,9 +101,7 @@ def job_choice(user_id, text):
         bot.send_message(user_id, 'Кого ты хочешь оценивать?', reply_markup=markup)
         sql.set_position(user_id, 'whom_to')
     else:
-        markup.row(types.KeyboardButton('Хочу пока оценивать других!'),
-                   types.KeyboardButton('Хочу, чтобы оценили меня!'))
-        bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup)
+        bot.send_message(user_id, 'Пожалуйста, введите корректное значение!')
 
 
 def who_to_rate(user_id, text):  # кому показывать фото для оценки
@@ -163,7 +150,7 @@ def whom_to_rate(user_id, text):  # кого показывать для оце�
         bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup)
 
 
-def send_photo(user_id):
+def send_photo(user_id): # есть баг, надо пофиксить
     if sql.search_photo(user_id) != 0:
         photo_id = str(sql.search_photo(user_id)[1])
         markup = types.InlineKeyboardMarkup()
@@ -191,12 +178,56 @@ def send_photo(user_id):
 
 def my_photos(user_id): # доделать получение всех фотографий и средних оценок к ним
     data = sql.my_photos_raitings(user_id)
-    photos_rait = {}
-    for i in range(len(data)):
-        if photos_rait.get(data[i][0]) == None:
-            photos_rait[data[i][0]] = 0
-        photos_rait[data[i][0]] += int(data[i][2]) # реализовать среднее арифметическое оценок к фото
-    print(photos_rait)
+    if data == {}:
+        markup = types.ReplyKeyboardMarkup()
+        markup.row(types.KeyboardButton('Продолжить оценивать!'),
+                   types.KeyboardButton('Добавить фото!'))
+        sql.set_position(user_id, 'rait_or_add_photo')
+        bot.send_message(user_id, 'У Вас нет фотографий, которые могли бы оценивать другие пользователи!', reply_markup=markup)
+    else:
+        for key, value in data.items():
+            bot.send_photo(user_id, sql.get_file_id(key), caption='Среднее всех оценок: ' + str(value))
+        markup = types.ReplyKeyboardMarkup()
+        markup.row(types.KeyboardButton('Оценить кого-то!'),
+                   types.KeyboardButton('Добавить еще фото!'))
+        bot.send_message(user_id, 'Что дальше?)', reply_markup=markup)
+        sql.set_position(user_id, 'wait_rait_photo')
 
-my_photos('525875863')
+
+def wait_rait_photo(user_id, text):
+    if text == 'Добавить еще фото!':
+        sql.set_position(user_id, 'add_photo')
+        bot.send_message(user_id, 'Пришлите фото!')
+    elif text == 'Оценить кого-то!':
+        if sql.get_whom_to(user_id) == 'None':
+            markup = types.ReplyKeyboardMarkup()
+            markup.row(types.KeyboardButton('Всех'),
+                       types.KeyboardButton('Парней'),
+                       types.KeyboardButton('Девушек'))
+            bot.send_message(user_id, 'Кого ты хочешь оценивать?', reply_markup=markup)
+            sql.set_position(user_id, 'whom_to')
+        else:
+            send_photo(user_id)
+    else:
+        bot.send_message(user_id, 'Пожалуйста, введите корректное значение!')
+
+
+def rait_or_add_photo(user_id, text):
+    if text == 'Продолжить оценивать!':
+        send_photo(user_id)
+    elif text == 'Добавить фото!':
+        if sql.get_who_to(user_id) == 'None':
+            markup = types.ReplyKeyboardMarkup()
+            markup.row(types.KeyboardButton('Всем'),
+                       types.KeyboardButton('Парням'),
+                       types.KeyboardButton('Девушкам'))
+            bot.send_message(user_id, 'Кому показывать твои фотографии?', reply_markup=markup)
+            sql.set_position(user_id, 'who_to')
+        else:
+            sql.set_position(user_id, 'add_photo')
+            bot.send_message(user_id, 'Пришлите фото!')
+    else:
+        bot.send_message(user_id, 'Пожалуйста, введите корректное значение!')
+
+
 bot.infinity_polling()
