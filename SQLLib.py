@@ -58,9 +58,12 @@ def search_photo(user_id): # пофиксить баг
     photos = cur.execute("SELECT file_id, id, user_id FROM photos WHERE photos.id NOT IN ("
                           "SELECT photo_id FROM raitings WHERE user_id = ?) ", (user_id, )).fetchall()
     for photo in photos:
-        whom_to = cur.execute("SELECT whom_to FROM users WHERE Id = ?", (user_id, )).fetchone()[0]
-        who_to = cur.execute("SELECT who_to FROM users WHERE Id = ?", (photo[2], )).fetchone()[0]
-        if whom_to == who_to and photo[2] != user_id: # В этой строчке есть ошибка в логике, тут сопоставляются не гендеры,
+        gender = get_gender(photo[2])
+        whom_to = get_whom_to(user_id)
+        who_to = get_who_to(photo[2])
+        if (get_whom_to(user_id) == get_gender(photo[2]) or get_whom_to(user_id) == 'all') \
+                and (get_who_to(photo[2]) == get_gender(user_id) or get_who_to(photo[2]) == 'all') \
+                and (photo[2] != user_id): # В этой строчке есть ошибка в логике, тут сопоставляются не гендеры,
             return photo[0:2]                         # а то, кому и кого показывать. Может получиться так,
                                                         # что увидеть фотку может не тот кому она предназначалась
     return 0

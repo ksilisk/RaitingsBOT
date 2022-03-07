@@ -76,10 +76,13 @@ def man_woman(user_id, text):
     markup.row(types.KeyboardButton('Парень'),
                types.KeyboardButton('Девушка'))
     if text in ['Парень', 'Девушка']:
+        if text == 'Парень':
+            sql.set_gender(user_id, 'man')
+        else:
+            sql.set_gender(user_id, 'woman')
         markup = types.ReplyKeyboardMarkup()
         markup.row(types.KeyboardButton('Хочу пока оценивать других!'),
                    types.KeyboardButton('Хочу, чтобы оценили меня!'))
-        sql.set_gender(user_id, text)
         bot.send_message(user_id, 'Отлично!\nТеперь ответьте как хотите продолжить?', reply_markup=markup)
         sql.set_position(user_id, 'job_choice')
     else:
