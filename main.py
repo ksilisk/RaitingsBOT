@@ -69,6 +69,8 @@ def message_hand(message):
 def photos_hand(message):
     if sql.get_position(message.chat.id) == 'add_photo':
         add_photo(message.chat.id, message.photo[len(message.photo) - 1])
+    else:
+        bot.send_message(message.chat.id, 'Пожалуйста, введите корректное значение!')
 
 
 def man_woman(user_id, text):
@@ -179,7 +181,7 @@ def send_photo(user_id): # есть баг, надо пофиксить
         sql.set_position(user_id, 'wait_new_photo')
 
 
-def my_photos(user_id): # доделать получение всех фотографий и средних оценок к ним
+def my_photos(user_id):
     data = sql.my_photos_raitings(user_id)
     if data == {}:
         markup = types.ReplyKeyboardMarkup()
