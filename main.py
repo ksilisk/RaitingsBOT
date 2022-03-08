@@ -7,10 +7,6 @@ token = "973541236:AAFLvoGUV1btTIYuoJ8i4NxXv2K4gGrQiBY"
 bot = telebot.TeleBot(token)
 
 #read = 525875863
-#print(sql.my_photos_raitings(read))
-# print(sql.aaaa(11))
-
-# print(sql.search_photo(12))#sql.add_new_photo(12, '5576567567856')
 
 
 @bot.message_handler(commands=['start'])
