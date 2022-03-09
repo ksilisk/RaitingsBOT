@@ -4,6 +4,11 @@ con = sqlite3.connect('raitings_base.db', check_same_thread=False)
 cur = con.cursor()
 
 
+def del_photo(photo_id):
+    a = 'false'
+    cur.execute("UPDATE photos SET evaluate = ? WHERE id = ?", (a, photo_id,))
+    con.commit()
+
 def check_ban(user_id):
     if cur.execute("SELECT banned FROM users WHERE Id = ?", (user_id,)).fetchall()[0][0] == 1:
         return True
@@ -89,6 +94,10 @@ def my_photos_raitings(user_id):
     for photo in photos:
         raitings[photo[0]] = cur.execute("SELECT ROUND(AVG(raiting), 1) FROM raitings WHERE photo_id = ?", (photo[0], )).fetchall()[0][0]
     return raitings
+
+
+def get_photo_owner(photo_id):
+    return cur.execute("SELECT user_id FROM photos WHERE id = ?", (photo_id,)).fetchone()[0]
 
 
 def get_file_id(photo_id):

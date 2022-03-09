@@ -29,9 +29,14 @@ def callback_query(call):
             sql.add_complaint(call.from_user.id)
         elif data[0] == 'my':
             my_photos(call.from_user.id)
+        elif data[0] == 'del':
+            sql.del_photo(data[1])
         else:
             sql.add_rait(data[1], call.from_user.id, data[0])
             send_photo(call.from_user.id)
+            bot.send_photo(sql.get_photo_owner(data[1]),
+                           sql.get_file_id(data[1]),
+                           caption=('Вашу фотографию оценили на: ' + data[0]))
     else:
         bot.send_message(call.from_user.id, 'Ошибка! Попробуйте снова!')
 
@@ -186,8 +191,10 @@ def my_photos(user_id):
         sql.set_position(user_id, 'rait_or_add_photo')
         bot.send_message(user_id, 'У Вас нет фотографий, которые могли бы оценивать другие пользователи!', reply_markup=markup)
     else:
+        markup = types.InlineKeyboardMarkup()
         for key, value in data.items():
-            bot.send_photo(user_id, sql.get_file_id(key), caption='Среднее всех оценок: ' + str(value))
+            markup.row(types.InlineKeyboardButton('Удалить!', 'del_' + str(key)))
+            bot.send_photo(user_id, sql.get_file_id(key), caption='Среднее всех оценок: ' + str(value), reply_markup=markup)
         markup = types.ReplyKeyboardMarkup()
         markup.row(types.KeyboardButton('Оценить кого-то!'),
                    types.KeyboardButton('Добавить еще фото!'))
