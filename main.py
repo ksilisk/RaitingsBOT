@@ -191,9 +191,9 @@ def my_photos(user_id):
         sql.set_position(user_id, 'rait_or_add_photo')
         bot.send_message(user_id, 'У Вас нет фотографий, которые могли бы оценивать другие пользователи!', reply_markup=markup)
     else:
-        markup = types.InlineKeyboardMarkup()
         for key, value in data.items():
-            markup.row(types.InlineKeyboardButton('Удалить!', 'del_' + str(key)))
+            markup = types.InlineKeyboardMarkup()
+            markup.row(types.InlineKeyboardButton('Удалить!', callback_data = ('del_' + str(key))))
             bot.send_photo(user_id, sql.get_file_id(key), caption='Среднее всех оценок: ' + str(value), reply_markup=markup)
         markup = types.ReplyKeyboardMarkup()
         markup.row(types.KeyboardButton('Оценить кого-то!'),

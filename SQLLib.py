@@ -59,9 +59,9 @@ def get_gender(user_id):
     return cur.execute("SELECT gender FROM users WHERE Id = ?", (user_id,)).fetchone()[0]
 
 
-def search_photo(user_id): # пофиксить баг
+def search_photo(user_id):
     photos = cur.execute("SELECT file_id, id, user_id FROM photos WHERE photos.id NOT IN ("
-                          "SELECT photo_id FROM raitings WHERE user_id = ?) ", (user_id, )).fetchall()
+                          "SELECT photo_id FROM raitings WHERE user_id = ?) AND photos.evaluate = ?", (user_id, 'true')).fetchall()
     for photo in photos:
         if (get_whom_to(user_id) == get_gender(photo[2]) or get_whom_to(user_id) == 'all') \
                 and (get_who_to(photo[2]) == get_gender(user_id) or get_who_to(photo[2]) == 'all') \
@@ -90,7 +90,7 @@ def add_rait(photo_id, user_id, raiting):
 
 def my_photos_raitings(user_id):
     raitings = {}
-    photos = cur.execute("SELECT id FROM photos WHERE user_id = ?", (user_id, )).fetchall()
+    photos = cur.execute("SELECT id FROM photos WHERE user_id = ? AND evaluate = ?", (user_id, 'true')).fetchall()
     for photo in photos:
         raitings[photo[0]] = cur.execute("SELECT ROUND(AVG(raiting), 1) FROM raitings WHERE photo_id = ?", (photo[0], )).fetchall()[0][0]
     return raitings
