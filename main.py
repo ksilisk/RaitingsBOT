@@ -6,12 +6,19 @@ import SQLLib as sql
 token = "973541236:AAFLvoGUV1btTIYuoJ8i4NxXv2K4gGrQiBY"
 bot = telebot.TeleBot(token)
 
-#read = 525875863
+# read = 525875863
+markup_who_to = types.ReplyKeyboardMarkup(True, True).row(types.KeyboardButton('Всем'),
+                                                          types.KeyboardButton('Парнем'),
+                                                          types.KeyboardButton('Девушкам'))
+
+markup_whom_to = types.ReplyKeyboardMarkup(True, True).row(types.KeyboardButton('Всех'),
+                                                           types.KeyboardButton('Парней'),
+                                                           types.KeyboardButton('Девушек'))
 
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    markup = types.ReplyKeyboardMarkup()
+    markup = types.ReplyKeyboardMarkup(True, True)
     markup.row(types.KeyboardButton('Парень'),
                types.KeyboardButton('Девушка'))
     if sql.check_user(message.chat.id):
@@ -75,7 +82,7 @@ def photos_hand(message):
 
 
 def man_woman(user_id, text):
-    markup = types.ReplyKeyboardMarkup()
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.row(types.KeyboardButton('Парень'),
                types.KeyboardButton('Девушка'))
     if text in ['Парень', 'Девушка']:
@@ -83,7 +90,7 @@ def man_woman(user_id, text):
             sql.set_gender(user_id, 'man')
         else:
             sql.set_gender(user_id, 'woman')
-        markup = types.ReplyKeyboardMarkup()
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.row(types.KeyboardButton('Хочу пока оценивать других!'),
                    types.KeyboardButton('Хочу, чтобы оценили меня!'))
         bot.send_message(user_id, 'Отлично!\nТеперь ответьте как хотите продолжить?', reply_markup=markup)
@@ -93,18 +100,11 @@ def man_woman(user_id, text):
 
 
 def job_choice(user_id, text):
-    markup = types.ReplyKeyboardMarkup()
     if text == 'Хочу, чтобы оценили меня!':
-        markup.row(types.KeyboardButton('Всем'),
-                   types.KeyboardButton('Парням'),
-                   types.KeyboardButton('Девушкам'))
-        bot.send_message(user_id, 'Кому показывать твои фотографии?', reply_markup=markup)
+        bot.send_message(user_id, 'Кому показывать твои фотографии?', reply_markup=markup_who_to)
         sql.set_position(user_id, 'who_to')
     elif text == 'Хочу пока оценивать других!':
-        markup.row(types.KeyboardButton('Всех'),
-                   types.KeyboardButton('Парней'),
-                   types.KeyboardButton('Девушек'))
-        bot.send_message(user_id, 'Кого ты хочешь оценивать?', reply_markup=markup)
+        bot.send_message(user_id, 'Кого ты хочешь оценивать?', reply_markup=markup_who_to)
         sql.set_position(user_id, 'whom_to')
     else:
         bot.send_message(user_id, 'Пожалуйста, введите корректное значение!')
@@ -121,15 +121,11 @@ def who_to_rate(user_id, text):  # кому показывать фото для
         bot.send_message(user_id, 'Отлично!\nТеперь пришли фотографию, которую будут оценивать другие пользователи!')
         sql.set_position(user_id, 'add_photo')
     else:
-        markup = types.ReplyKeyboardMarkup()
-        markup.row(types.KeyboardButton('Всем'),
-                   types.KeyboardButton('Парнем'),
-                   types.KeyboardButton('Девушкам'))
-        bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup)
+        bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup_who_to)
 
 
 def add_photo(user_id, photo):
-    markup = types.ReplyKeyboardMarkup()
+    markup = types.ReplyKeyboardMarkup(True,True)
     markup.row(types.KeyboardButton('Добавить еще фото!'),
                types.KeyboardButton('Оценить кого-то!'))
     bot.send_message(user_id,
@@ -149,33 +145,29 @@ def whom_to_rate(user_id, text):  # кого показывать для оце�
             sql.set_whom_to(user_id, 'woman')
         send_photo(user_id)
     else:
-        markup = types.ReplyKeyboardMarkup()
-        markup.row(types.KeyboardButton('Всех'),
-                   types.KeyboardButton('Парней'),
-                   types.KeyboardButton('Девушек'))
-        bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup)
+        bot.send_message(user_id, 'Пожалуйста, введите корректное значение!', reply_markup=markup_whom_to)
 
 
-def send_photo(user_id): # есть баг, надо пофиксить
+def send_photo(user_id):  # есть баг, надо пофиксить
     if sql.search_photo(user_id) != 0:
         photo_id = str(sql.search_photo(user_id)[1])
-        markup = types.InlineKeyboardMarkup()
+        markup = types.InlineKeyboardMarkup(row_width=3)
         markup.row(types.InlineKeyboardButton('1', callback_data=('1_' + photo_id)),
                    types.InlineKeyboardButton('2', callback_data=('2_' + photo_id)),
                    types.InlineKeyboardButton('3', callback_data=('3_' + photo_id)),
                    types.InlineKeyboardButton('4', callback_data=('4_' + photo_id)),
-                   types.InlineKeyboardButton('5', callback_data=('5_' + photo_id)),
-                   types.InlineKeyboardButton('6', callback_data=('6_' + photo_id)),
+                   types.InlineKeyboardButton('5', callback_data=('5_' + photo_id)))
+        markup.row(types.InlineKeyboardButton('6', callback_data=('6_' + photo_id)),
                    types.InlineKeyboardButton('7', callback_data=('7_' + photo_id)),
                    types.InlineKeyboardButton('8', callback_data=('8_' + photo_id)),
                    types.InlineKeyboardButton('9', callback_data=('9_' + photo_id)),
-                   types.InlineKeyboardButton('10', callback_data=('10_' + photo_id)),
-                   types.InlineKeyboardButton('Жалоба', callback_data=('complaint_' + photo_id)),
+                   types.InlineKeyboardButton('10', callback_data=('10_' + photo_id)))
+        markup.row(types.InlineKeyboardButton('Жалоба', callback_data=('complaint_' + photo_id)),
                    types.InlineKeyboardButton('Мои фото', callback_data='my_photo'))
         file_id = str(sql.search_photo(user_id)[0])
         bot.send_photo(user_id, file_id, reply_markup=markup)
     else:
-        markup = types.ReplyKeyboardMarkup()
+        markup = types.ReplyKeyboardMarkup(True,True)
         markup.row(types.KeyboardButton('Оценить кого-то'),
                    types.KeyboardButton('Мои фотографии'))
         bot.send_message(user_id, 'На данный момент новых фотографий нет! Попробуйте позже!', reply_markup=markup)
@@ -185,17 +177,19 @@ def send_photo(user_id): # есть баг, надо пофиксить
 def my_photos(user_id):
     data = sql.my_photos_raitings(user_id)
     if data == {}:
-        markup = types.ReplyKeyboardMarkup()
+        markup = types.ReplyKeyboardMarkup(True,True)
         markup.row(types.KeyboardButton('Продолжить оценивать!'),
                    types.KeyboardButton('Добавить фото!'))
         sql.set_position(user_id, 'rait_or_add_photo')
-        bot.send_message(user_id, 'У Вас нет фотографий, которые могли бы оценивать другие пользователи!', reply_markup=markup)
+        bot.send_message(user_id, 'У Вас нет фотографий, которые могли бы оценивать другие пользователи!',
+                         reply_markup=markup)
     else:
         for key, value in data.items():
             markup = types.InlineKeyboardMarkup()
-            markup.row(types.InlineKeyboardButton('Удалить!', callback_data = ('del_' + str(key))))
-            bot.send_photo(user_id, sql.get_file_id(key), caption='Среднее всех оценок: ' + str(value), reply_markup=markup)
-        markup = types.ReplyKeyboardMarkup()
+            markup.row(types.InlineKeyboardButton('Удалить!', callback_data=('del_' + str(key))))
+            bot.send_photo(user_id, sql.get_file_id(key), caption='Среднее всех оценок: ' + str(value),
+                           reply_markup=markup)
+        markup = types.ReplyKeyboardMarkup(True,True)
         markup.row(types.KeyboardButton('Оценить кого-то!'),
                    types.KeyboardButton('Добавить еще фото!'))
         bot.send_message(user_id, 'Что дальше?)', reply_markup=markup)
@@ -208,11 +202,7 @@ def wait_rait_photo(user_id, text):
         bot.send_message(user_id, 'Пришлите фото!')
     elif text == 'Оценить кого-то!':
         if sql.get_whom_to(user_id) == 'None':
-            markup = types.ReplyKeyboardMarkup()
-            markup.row(types.KeyboardButton('Всех'),
-                       types.KeyboardButton('Парней'),
-                       types.KeyboardButton('Девушек'))
-            bot.send_message(user_id, 'Кого ты хочешь оценивать?', reply_markup=markup)
+            bot.send_message(user_id, 'Кого ты хочешь оценивать?', reply_markup=markup_whom_to)
             sql.set_position(user_id, 'whom_to')
         else:
             send_photo(user_id)
@@ -225,11 +215,7 @@ def rait_or_add_photo(user_id, text):
         send_photo(user_id)
     elif text == 'Добавить фото!':
         if sql.get_who_to(user_id) == 'None':
-            markup = types.ReplyKeyboardMarkup()
-            markup.row(types.KeyboardButton('Всем'),
-                       types.KeyboardButton('Парням'),
-                       types.KeyboardButton('Девушкам'))
-            bot.send_message(user_id, 'Кому показывать твои фотографии?', reply_markup=markup)
+            bot.send_message(user_id, 'Кому показывать твои фотографии?', reply_markup=markup_who_to)
             sql.set_position(user_id, 'who_to')
         else:
             sql.set_position(user_id, 'add_photo')
