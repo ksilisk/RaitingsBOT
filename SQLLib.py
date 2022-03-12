@@ -9,6 +9,11 @@ def del_photo(photo_id):
     cur.execute("UPDATE photos SET evaluate = ? WHERE id = ?", (a, photo_id,))
     con.commit()
 
+
+def get_complants(user_id):
+    return cur.execute("SELECT complaints FROM users WHERE Id = ?", (user_id,)).fetchone()[0]
+
+
 def check_ban(user_id):
     if cur.execute("SELECT banned FROM users WHERE Id = ?", (user_id,)).fetchall()[0][0] == 1:
         return True
@@ -65,7 +70,7 @@ def search_photo(user_id):
     for photo in photos:
         if (get_whom_to(user_id) == get_gender(photo[2]) or get_whom_to(user_id) == 'all') \
                 and (get_who_to(photo[2]) == get_gender(user_id) or get_who_to(photo[2]) == 'all') \
-                and (photo[2] != user_id):
+                and (photo[2] != user_id) and not check_ban(photo[2]):
             return photo[0:2]
     return 0
 
@@ -102,6 +107,11 @@ def get_photo_owner(photo_id):
 
 def get_file_id(photo_id):
     return cur.execute("SELECT file_id FROM photos WHERE id = ?", (photo_id,)).fetchone()[0]
+
+
+def ban_user(user_id):
+    cur.execute("UPDATE users SET banned = ? WHERE Id = ?", (1, user_id))
+    con.commit()
 
 
 def close():
