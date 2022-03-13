@@ -22,13 +22,21 @@ def start(message):
     markup.row(types.KeyboardButton('Парень'),
                types.KeyboardButton('Девушка'))
     if sql.check_user(message.chat.id):
-        sql.set_position(message.chat.id, 'пол')
+        pos = sql.get_position(message.chat.id)
+        if pos.split('_')[0] == 'start':
+            if int(pos.split('_')[1]) >= 5:
+                sql.ban_user(message.chat.id)
+                bot.send_message(message.chat.id, 'Вы были забанены за DDOS')
+            else:
+                sql.set_position(message.chat.id, 'start_' + str(int(pos.split('_')[1])+1))
+        else:
+            sql.set_position(message.chat.id, 'start_1')
     else:
-        sql.add_user(message.chat.id, 'пол')
+        sql.add_user(message.chat.id, 'start_1')
     bot.send_message(message.chat.id, "Вы парень или девушка?", reply_markup=markup)
 
 
-@bot.callback_query_handler(func=lambda call: True)
+@bot.callback_query_handler(func=lambda call: not sql.check_ban(call.from_user.id))
 def callback_query(call):
     if '_' in call.data:
         data = call.data.split('_')
@@ -55,7 +63,7 @@ def callback_query(call):
 
 @bot.message_handler(content_types=['text'], func=lambda message: not sql.check_ban(message.chat.id))
 def message_hand(message):
-    if sql.get_position(message.chat.id) == 'пол':
+    if sql.get_position(message.chat.id).split('_')[0] == 'start':
         man_woman(message.chat.id, message.text)
     elif sql.get_position(message.chat.id) == 'job_choice':
         job_choice(message.chat.id, message.text)
@@ -231,4 +239,7 @@ def rait_or_add_photo(user_id, text):
         bot.send_message(user_id, 'Пожалуйста, введите корректное значение!')
 
 
-bot.infinity_polling()
+users = sql.get_all_users()
+for i in range(len(users)):
+    bot.send_message(users[i][0], 'Бот был перезапущен, попробуйте команду снова!')
+bot.infinity_polling(skip_pending=True)

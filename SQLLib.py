@@ -101,6 +101,10 @@ def my_photos_raitings(user_id):
     return raitings
 
 
+def get_all_users():
+    return cur.execute("SELECT Id FROM users WHERE banned = ?", ('0', )).fetchall()
+
+
 def get_photo_owner(photo_id):
     return cur.execute("SELECT user_id FROM photos WHERE id = ?", (photo_id,)).fetchone()[0]
 
